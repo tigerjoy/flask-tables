@@ -13,6 +13,15 @@
     </thead>
     <tbody>
     </tbody>
+    <tfoot>
+      <tr>
+        <th>Name</th>
+        <th>Age</th>
+        <th>Address</th>
+        <th>Phone Number</th>
+        <th>Email</th>
+      </tr>
+    </tfoot>
   </table>
 {% endblock %}
 
@@ -20,10 +29,33 @@
   <script>
     $(document).ready(function () {
       $('#data').DataTable({
+        initComplete: function(){
+          this.api().columns().every(function(colIndex){
+              var column = this;
+              console.log(column.header().textContent);
+              console.log(column.header().textContent === 'Age')
+              if(column.header().textContent === 'Age'){
+                var select = $('<select><option value=""></option></select>')
+                            .appendTo($(column.footer()).empty())
+                            .on('change', function(){
+                              var val =  $.fn.dataTable.util.escapeRegex(
+                                            $(this).val()
+                                        );
+                              column
+                                    .search( val ? '^'+val+'$' : '', true, false )
+                                    .draw();
+                            });
+                column.data().unique().sort().each( function ( d, j ) {
+                    select.append( '<option value="'+d+'">'+d+'</option>' )
+                } );
+              }
+            }
+          );
+        },
         ajax: '/api/data',
         columns: [
           {data: 'name'},
-          {data: 'age', searchable: false},
+          {data: 'age', searchable: true},
           {data: 'address', orderable: false, searchable: false},
           {data: 'phone', orderable: false, searchable: false},
           {data: 'email'}

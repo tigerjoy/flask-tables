@@ -41,7 +41,8 @@ def data():
     if search:
         query = query.filter(db.or_(
             User.name.like(f'%{search}%'),
-            User.email.like(f'%{search}%')
+            User.email.like(f'%{search}%'),
+            User.age.like(f'%{search}%')
         ))
     total_filtered = query.count()
 
